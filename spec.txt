@@ -1,7 +1,7 @@
 # isotropy-lib-fs
 Filesystem Library for the Isotropy Project
 
-1. getFiles(dir, recurse = false)  
+1. getFiles(dirPath, recurse = false)  
   returns an array [{ dir: "/abc", filename: "hllo.txt", contents: "words a..." }, { dir, filename, contents }, ...]
 
 2. readFile(path: string);
