@@ -1,0 +1,24 @@
+# isotropy-lib-fs
+Filesystem Library for the Isotropy Project
+
+1. getFiles(dir, recurse = false)  
+  returns an array [{ dir: "/abc", filename: "hllo.txt", contents: "words a..." }, { dir, filename, contents }, ...]
+
+2. readFile(path: string);
+  returns an object - { contents: fileData }
+
+3. createFile(path: string, contents: string)
+  returns nothing
+
+4. deleteFile(path)
+  returns nothing
+
+5. updateFile(path, contents)
+  returns nothing
+
+6. moveFile(path, newPath)
+  returns nothing
+
+7. moveDir(dirPath, newDirPath)
+  returns nothing
+eg: moveDir("/abc/xyz", "/haha/too1");
