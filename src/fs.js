@@ -16,7 +16,7 @@ async function getFilesInPath(dirPath) {
     files.map(filename =>
       fs
         .readFile(path.join(dirPath, filename))
-        .then(contents => ({ dir, filename, contents }))
+        .then(contents => ({ dir: dirPath, filename, contents }))
     )
   );
 }
