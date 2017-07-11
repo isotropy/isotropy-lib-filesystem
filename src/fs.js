@@ -1,6 +1,27 @@
 const fs = require("fs-extra");
 
-function getFilesInPath(dirPath) {
+async function getFilesInPath(dirPath) {
+  const entries = await fs.readdir(dirPath);
+  const stats = await Promise.all(
+    entries.map(filename =>
+      fs.lstat(path.join(dirPath, filename)).then(stat => ({ filename, stat }))
+    )
+  );
+
+  const files = stats
+    .filter(item => !item.stat.isDirectory())
+    .map(item => item.filename);
+
+  return await Promise.all(
+    files.map(filename =>
+      fs
+        .readFile(path.join(dirPath, filename))
+        .then(contents => ({ dir, filename, contents }))
+    )
+  );
+}
+
+function getFilesInPathOld(dirPath) {
   return fs
     .readdir(dirPath)
     .then(files =>
