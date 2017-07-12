@@ -1,10 +1,14 @@
 const fs = require("fs-extra");
+const path = require("path");
 
 async function getFilesInPath(dirPath) {
   const entries = await fs.readdir(dirPath);
   const stats = await Promise.all(
     entries.map(filename =>
-      fs.lstat(path.join(dirPath, filename)).then(stat => ({ filename, stat }))
+      fs.lstat(path.join(dirPath, filename)).then(stat => ({
+        filename,
+        stat
+      }))
     )
   );
 
@@ -13,82 +17,56 @@ async function getFilesInPath(dirPath) {
     .map(item => item.filename);
 
   return await Promise.all(
-    files.map(filename =>
+    files.map(
+      filename =>
       fs
-        .readFile(path.join(dirPath, filename))
-        .then(contents => ({ dir: dirPath, filename, contents }))
+      .readFile(path.join(dirPath, filename))
+      .then(contents => ({
+        dir: dirPath,
+        filename,
+        contents
+      }))
+      // .catch(err => err)
     )
   );
 }
 
-function getFilesInPathOld(dirPath) {
-  return fs
-    .readdir(dirPath)
-    .then(files =>
-      Promise.all(
-        files.map(file =>
-          fs
-            .lstat(dirPath + "/" + file)
-            .then(stats => (stats.isDirectory() ? null : file))
-            .catch(err => null)
-        )
-      ).then(files =>
-        Promise.all(
-          files.filter(file => file !== null).map(filename =>
-            fs
-              .readFile(dirPath + "/" + filename)
-              .then(contents => ({
-                dir: dirPath,
-                filename,
-                contents
-              }))
-              .catch(err => null)
-          )
-        ).then(out => out)
-      )
+async function getFilesInPathRecursively(dirPath, pathArray = [], out = []) {
+  const entries = await fs.readdir(dirPath);
+  const stats = await Promise.all(
+    entries.map(filename =>
+      fs.lstat(path.join(dirPath, filename)).then(stat => ({
+        filename,
+        stat
+      }))
     )
-    .catch(err => err);
-}
+  );
 
-function getNestedFilesInPath(dirPath, pathArray = [], out = []) {
-  return fs
-    .readdir(dirPath)
-    .then(files =>
-      Promise.all(
-        files.map(file =>
-          fs
-            .lstat(dirPath + "/" + file)
-            .then(stats => {
-              if (stats.isDirectory()) {
-                pathArray.push(dirPath + "/" + file);
-                return null;
-              }
-              return file;
-            })
-            .catch(err => null)
-        )
-      ).then(files =>
-        Promise.all(
-          files.filter(file => file !== null).map(filename =>
-            fs
-              .readFile(dirPath + "/" + filename)
-              .then(contents => ({
-                dir: dirPath,
-                filename,
-                contents
-              }))
-              .catch(err => null)
-          )
-        ).then(fileObj => {
-          out.push(...fileObj);
-          if (pathArray.length < 1) {
-            return out;
-          }
-          return getNestedFilesInPath(pathArray.pop(), pathArray, out);
-        })
-      )
+  const files = stats
+    .filter(item => {
+      if (item.stat.isDirectory())
+        pathArray.push(path.join(dirPath, item.filename));
+      return !item.stat.isDirectory();
+    })
+    .map(item => item.filename);
+
+  return await Promise.all(
+    files.map(
+      filename =>
+      fs
+      .readFile(path.join(dirPath, filename))
+      .then(contents => ({
+        dir: dirPath,
+        filename,
+        contents
+      }))
+      // .catch(err => err)
     )
-    .catch(err => err);
+  ).then(filesArray => {
+    out.push(...filesArray);
+    if (pathArray.length < 1) return out;
+    return getFilesInPathRecursively(pathArray.pop(), pathArray, out);
+  });
 }
 
 function getFiles(dirPath, recurse = false) {
@@ -96,45 +74,37 @@ function getFiles(dirPath, recurse = false) {
   return getNestedFilesInPath(dirPath);
 }
 
-function readFile(path) {
-  return fs
-    .readFile(path)
-    .then(contents => ({
-      contents
-    }))
-    .catch(err => null);
+export default async function readFile(path) {
+  return await fs.readFile(path).then(contents => ({
+    contents
+  }));
+  // .catch(err => err);
 }
 
-function createFile(path, contents) {
-  fs.access(path).then(() => console.log("File already exists")).catch(err => {
-    fs
-      .outputFile(path, contents)
-      .then(() => console.log("File Created: ", path))
-      .catch(err => console.log(err));
-  });
-}
-
-function deleteFile(path) {
+export default function createFile(path, contents) {
   fs
-    .unlink(path)
-    .then(() => console.log("File Deleted", path))
-    .catch(err => console.log(err));
+    .pathExists(path)
+    .then(exists => (exists ? null : fs.outputFile(path, contents)));
 }
 
-function updateFile(path, contents) {
-  fs
-    .outputFile(path, contents)
-    .then(() => console.log("File Updated: ", path))
-    .catch(err => console.log(err));
+export function deleteFile(path) {
+  fs.unlink(path);
+  // .then(() => console.log("File Deleted", path))
+  // .catch(err => console.log(err));
 }
 
-function moveFile(path, newPath) {
-  fs
-    .move(path, newPath)
-    .then(() => console.log("Success"))
-    .catch(err => console.log(err));
+export function updateFile(path, contents) {
+  fs.outputFile(path, contents);
+  // .then(() => console.log("File Updated: ", path))
+  // .catch(err => console.log(err));
 }
 
-function moveDir(dirPath, newDirPath) {
+export function moveFile(path, newPath) {
+  fs.move(path, newPath);
+  // .then(() => console.log("Success"))
+  // .catch(err => console.log(err));
+}
+
+export function moveDir(dirPath, newDirPath) {
   moveFile(dirPath, newDirPath);
 }
