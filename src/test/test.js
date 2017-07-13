@@ -1,71 +1,83 @@
 const should = require("should");
 const fs = require("fs-extra");
+import * as fsLib from "../fs";
 
 describe("lib-fs", function() {
-  before(() => {
+  beforeEach(() => {
     fs.removeSync(`${__dirname}/test-box`);
     fs.mkdirsSync(`${__dirname}/test-box`);
+    fs.removeSync(`${__dirname}/box-test`);
+    fs.mkdirsSync(`${__dirname}/box-test`);
   });
 
-  it("createFile", function(done) {
-    createFile(
-      `${__dirname}/test-box/text-box-text.txt`,
+  it("createFile", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
       "Should it be mocha or chai"
     );
-    readFile(`${__dirname}/test-box/text-box-text.txt`).then(fileData => {
-      fileData.contents.should.equal("Should it be mocha or chai");
-      done();
-    });
+    const result = await fsLib.readFile(`${__dirname}/test-box/text.txt`);
+    result.contents.should.equal("Should it be mocha or chai");
   });
 
-  it("readFile", function(done) {
-    readFile(`${__dirname}/test-box/text-box-text.txt`).then(fileData => {
-      fileData.contents.should.equal("Should it be mocha or chai");
-      done();
-    });
+  it("readFile", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Should it be mocha or chai"
+    );
+    const result = await fsLib.readFile(`${__dirname}/test-box/text.txt`);
+    result.contents.should.equal("Should it be mocha or chai");
   });
 
-  it("updateFile", function(done) {
-    updateFile(
-      `${__dirname}/test-box/text-box-text.txt`,
+  it("updateFile", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Should it be mocha or chai"
+    );
+    await fsLib.updateFile(
+      `${__dirname}/test-box/text.txt`,
       "It should be mocha I guess"
     );
-    readFile(`${__dirname}/test-box/text-box-text.txt`).then(fileData => {
-      fileData.contents.should.equal("It should be mocha I guess");
-      done();
-    });
+    const result = await fsLib.readFile(`${__dirname}/test-box/text.txt`);
+    result.contents.should.equal("It should be mocha I guess");
   });
 
-  it("moveFile", function(done) {
-    moveFile(
-      `${__dirname}/test-box/text-box-text.txt`,
-      `${__dirname}/box-test/text-box-text.txt`
+  it("moveFile", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Moving dem files"
     );
-    fs
-      .pathExists(`${__dirname}/box-test/text-box-text.txt`)
-      .then(exists => exists.should.equal(true));
-    fs
-      .pathExists(`${__dirname}/test-box/text-box-text.txt`)
-      .then(exists => exists.should.equal(false));
-  });
-
-  it("moveDir", function(done) {
-    moveDir(
-      `${__dirname}/test-box/text-box-text.txt`,
-      `${__dirname}/box-test/text-box-text.txt`
+    await fsLib.moveFile(
+      `${__dirname}/test-box/text.txt`,
+      `${__dirname}/box-test/text.txt`
     );
-    fs
-      .pathExists(`${__dirname}/box-test/text-box-text.txt`)
-      .then(exists => exists.should.equal(true));
-    fs
-      .pathExists(`${__dirname}/test-box/text-box-text.txt`)
-      .then(exists => exists.should.equal(false));
+    const newPathExists = await fs.pathExists(`${__dirname}/box-test/text.txt`);
+    const oldPathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
+    newPathExists.should.equal(true) && oldPathExists.should.equal(false);
   });
 
-  it("deleteFile", function(done) {
-    deleteFile(`${__dirname}/box-test/text-box-text.txt`);
-    fs
-      .pathExists(`${__dirname}/box-test/text-box-text.txt`)
-      .then(exists => exists.should.equal(false));
+  it("moveDir", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Moving dem files"
+    );
+    await fsLib.moveDir(
+      `${__dirname}/test-box/text.txt`,
+      `${__dirname}/box-test/test-box/text.txt`
+    );
+    const newPathExists = await fs.pathExists(
+      `${__dirname}/box-test/test-box/text.txt`
+    );
+    const oldPathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
+    newPathExists.should.equal(true) && oldPathExists.should.equal(false);
+  });
+
+  it("deleteFile", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Should it be mocha or chai"
+    );
+    await fsLib.deleteFile(`${__dirname}/test-box/text.txt`);
+    const pathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
+    pathExists.should.equal(false);
   });
 });

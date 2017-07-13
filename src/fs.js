@@ -7,28 +7,13 @@ async function getFilesInPath(dirPath) {
     entries.map(filename =>
       fs.lstat(path.join(dirPath, filename)).then(stat => ({
         filename,
-        stat
+        isDirectory: stat.isDirectory()
       }))
     )
   );
-
-  const files = stats
-    .filter(item => !item.stat.isDirectory())
-    .map(item => item.filename);
-
-  return await Promise.all(
-    files.map(
-      filename =>
-      fs
-      .readFile(path.join(dirPath, filename))
-      .then(contents => ({
-        dir: dirPath,
-        filename,
-        contents
-      }))
-      // .catch(err => err)
-    )
-  );
+  return stats
+    .filter(item => !item.isDirectory)
+    .map(item => path.join(dirPath, item.filename));
 }
 
 async function getFilesInPathRecursively(dirPath, pathArray = [], out = []) {
@@ -37,74 +22,49 @@ async function getFilesInPathRecursively(dirPath, pathArray = [], out = []) {
     entries.map(filename =>
       fs.lstat(path.join(dirPath, filename)).then(stat => ({
         filename,
-        stat
+        isDirectory: stat.isDirectory()
       }))
     )
   );
-
   const files = stats
     .filter(item => {
-      if (item.stat.isDirectory())
-        pathArray.push(path.join(dirPath, item.filename));
-      return !item.stat.isDirectory();
+      if (item.isDirectory) pathArray.push(path.join(dirPath, item.filename));
+      return !item.isDirectory;
     })
-    .map(item => item.filename);
+    .map(item => path.join(dirPath, item.filename));
 
-  return await Promise.all(
-    files.map(
-      filename =>
-      fs
-      .readFile(path.join(dirPath, filename))
-      .then(contents => ({
-        dir: dirPath,
-        filename,
-        contents
-      }))
-      // .catch(err => err)
-    )
-  ).then(filesArray => {
-    out.push(...filesArray);
-    if (pathArray.length < 1) return out;
-    return getFilesInPathRecursively(pathArray.pop(), pathArray, out);
-  });
+  out.push(...files);
+  if (pathArray.length < 1) return out;
+  return getFilesInPathRecursively(pathArray.pop(), pathArray, out);
 }
 
-function getFiles(dirPath, recurse = false) {
+export function getFiles(dirPath, recurse = false) {
   if (recurse === false) return getFilesInPath(dirPath);
   return getNestedFilesInPath(dirPath);
 }
 
-export default async function readFile(path) {
-  return await fs.readFile(path).then(contents => ({
-    contents
-  }));
-  // .catch(err => err);
+export async function readFile(path) {
+  return await fs.readFile(path, "utf8").then(contents => ({ contents }));
 }
 
-export default function createFile(path, contents) {
-  fs
+export async function createFile(path, contents = "") {
+  return await fs
     .pathExists(path)
     .then(exists => (exists ? null : fs.outputFile(path, contents)));
 }
 
-export function deleteFile(path) {
-  fs.unlink(path);
-  // .then(() => console.log("File Deleted", path))
-  // .catch(err => console.log(err));
+export async function deleteFile(path) {
+  return await fs.unlink(path);
 }
 
-export function updateFile(path, contents) {
-  fs.outputFile(path, contents);
-  // .then(() => console.log("File Updated: ", path))
-  // .catch(err => console.log(err));
+export async function updateFile(path, contents) {
+  return await fs.outputFile(path, contents);
 }
 
-export function moveFile(path, newPath) {
-  fs.move(path, newPath);
-  // .then(() => console.log("Success"))
-  // .catch(err => console.log(err));
+export async function moveFile(path, newPath) {
+  return await fs.move(path, newPath);
 }
 
-export function moveDir(dirPath, newDirPath) {
-  moveFile(dirPath, newDirPath);
+export async function moveDir(dirPath, newDirPath) {
+  return await moveFile(dirPath, newDirPath);
 }
