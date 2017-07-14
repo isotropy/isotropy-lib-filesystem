@@ -26,17 +26,28 @@ describe("lib-fs", function () {
     result.contents.should.equal("Should it be mocha or chai");
   }));
 
+  it("getFiles", _asyncToGenerator(function* () {
+    yield fsLib.createFile(`${__dirname}/test-box/text.txt`, "Should it be mocha or chai");
+    yield fsLib.createFile(`${__dirname}/test-box/teckst.txt`, "It should be mocha I guess");
+    yield fsLib.createFile(`${__dirname}/test-box/tekst.txt`, "Or maybe chai");
+    const result = yield fsLib.getFiles(`${__dirname}/test-box/`);
+    result.should.deepEqual([`${__dirname}/test-box/teckst.txt`, `${__dirname}/test-box/tekst.txt`, `${__dirname}/test-box/text.txt`]);
+  }));
+
+  it("getFilesRecursive", _asyncToGenerator(function* () {
+    yield fsLib.createFile(`${__dirname}/test-box/text.txt`, "Should it be mocha or chai");
+    yield fsLib.createFile(`${__dirname}/test-box/teckst.txt`, "It should be mocha I guess");
+    yield fsLib.createFile(`${__dirname}/test-box/box-test/text.txt`, "Or maybe chai");
+    yield fsLib.createFile(`${__dirname}/test-box/box-test/teckst.txt`, "Or mocha");
+    yield fsLib.createFile(`${__dirname}/test-box/box-test/bento-test/text.txt`, "Or chai");
+    const result = yield fsLib.getFiles(`${__dirname}/test-box/`, true);
+    result.should.deepEqual([`${__dirname}/test-box/teckst.txt`, `${__dirname}/test-box/text.txt`, `${__dirname}/test-box/box-test/teckst.txt`, `${__dirname}/test-box/box-test/text.txt`, `${__dirname}/test-box/box-test/bento-test/text.txt`]);
+  }));
+
   it("readFile", _asyncToGenerator(function* () {
     yield fsLib.createFile(`${__dirname}/test-box/text.txt`, "Should it be mocha or chai");
     const result = yield fsLib.readFile(`${__dirname}/test-box/text.txt`);
     result.contents.should.equal("Should it be mocha or chai");
-  }));
-
-  it("updateFile", _asyncToGenerator(function* () {
-    yield fsLib.createFile(`${__dirname}/test-box/text.txt`, "Should it be mocha or chai");
-    yield fsLib.updateFile(`${__dirname}/test-box/text.txt`, "It should be mocha I guess");
-    const result = yield fsLib.readFile(`${__dirname}/test-box/text.txt`);
-    result.contents.should.equal("It should be mocha I guess");
   }));
 
   it("moveFile", _asyncToGenerator(function* () {
@@ -47,12 +58,11 @@ describe("lib-fs", function () {
     newPathExists.should.equal(true) && oldPathExists.should.equal(false);
   }));
 
-  it("moveDir", _asyncToGenerator(function* () {
-    yield fsLib.createFile(`${__dirname}/test-box/text.txt`, "Moving dem files");
-    yield fsLib.moveDir(`${__dirname}/test-box/text.txt`, `${__dirname}/box-test/test-box/text.txt`);
-    const newPathExists = yield fs.pathExists(`${__dirname}/box-test/test-box/text.txt`);
-    const oldPathExists = yield fs.pathExists(`${__dirname}/test-box/text.txt`);
-    newPathExists.should.equal(true) && oldPathExists.should.equal(false);
+  it("updateFile", _asyncToGenerator(function* () {
+    yield fsLib.createFile(`${__dirname}/test-box/text.txt`, "Should it be mocha or chai");
+    yield fsLib.updateFile(`${__dirname}/test-box/text.txt`, "It should be mocha I guess");
+    const result = yield fsLib.readFile(`${__dirname}/test-box/text.txt`);
+    result.contents.should.equal("It should be mocha I guess");
   }));
 
   it("deleteFile", _asyncToGenerator(function* () {
@@ -62,4 +72,12 @@ describe("lib-fs", function () {
     pathExists.should.equal(false);
   }));
 });
+
+it("moveDir", _asyncToGenerator(function* () {
+  yield fsLib.createFile(`${__dirname}/test-box/text.txt`, "Moving dem files");
+  yield fsLib.moveDir(`${__dirname}/test-box/text.txt`, `${__dirname}/box-test/test-box/text.txt`);
+  const newPathExists = yield fs.pathExists(`${__dirname}/box-test/test-box/text.txt`);
+  const oldPathExists = yield fs.pathExists(`${__dirname}/test-box/text.txt`);
+  newPathExists.should.equal(true) && oldPathExists.should.equal(false);
+}));
 //# sourceMappingURL=test.js.map

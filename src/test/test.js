@@ -19,6 +19,55 @@ describe("lib-fs", function() {
     result.contents.should.equal("Should it be mocha or chai");
   });
 
+  it("getFiles", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Should it be mocha or chai"
+    );
+    await fsLib.createFile(
+      `${__dirname}/test-box/teckst.txt`,
+      "It should be mocha I guess"
+    );
+    await fsLib.createFile(`${__dirname}/test-box/tekst.txt`, "Or maybe chai");
+    const result = await fsLib.getFiles(`${__dirname}/test-box/`);
+    result.should.deepEqual([
+      `${__dirname}/test-box/teckst.txt`,
+      `${__dirname}/test-box/tekst.txt`,
+      `${__dirname}/test-box/text.txt`
+    ]);
+  });
+
+  it("getFilesRecursive", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Should it be mocha or chai"
+    );
+    await fsLib.createFile(
+      `${__dirname}/test-box/teckst.txt`,
+      "It should be mocha I guess"
+    );
+    await fsLib.createFile(
+      `${__dirname}/test-box/box-test/text.txt`,
+      "Or maybe chai"
+    );
+    await fsLib.createFile(
+      `${__dirname}/test-box/box-test/teckst.txt`,
+      "Or mocha"
+    );
+    await fsLib.createFile(
+      `${__dirname}/test-box/box-test/bento-test/text.txt`,
+      "Or chai"
+    );
+    const result = await fsLib.getFiles(`${__dirname}/test-box/`, true);
+    result.should.deepEqual([
+      `${__dirname}/test-box/teckst.txt`,
+      `${__dirname}/test-box/text.txt`,
+      `${__dirname}/test-box/box-test/teckst.txt`,
+      `${__dirname}/test-box/box-test/text.txt`,
+      `${__dirname}/test-box/box-test/bento-test/text.txt`
+    ]);
+  });
+
   it("readFile", async () => {
     await fsLib.createFile(
       `${__dirname}/test-box/text.txt`,
@@ -26,19 +75,6 @@ describe("lib-fs", function() {
     );
     const result = await fsLib.readFile(`${__dirname}/test-box/text.txt`);
     result.contents.should.equal("Should it be mocha or chai");
-  });
-
-  it("updateFile", async () => {
-    await fsLib.createFile(
-      `${__dirname}/test-box/text.txt`,
-      "Should it be mocha or chai"
-    );
-    await fsLib.updateFile(
-      `${__dirname}/test-box/text.txt`,
-      "It should be mocha I guess"
-    );
-    const result = await fsLib.readFile(`${__dirname}/test-box/text.txt`);
-    result.contents.should.equal("It should be mocha I guess");
   });
 
   it("moveFile", async () => {
@@ -55,20 +91,17 @@ describe("lib-fs", function() {
     newPathExists.should.equal(true) && oldPathExists.should.equal(false);
   });
 
-  it("moveDir", async () => {
+  it("updateFile", async () => {
     await fsLib.createFile(
       `${__dirname}/test-box/text.txt`,
-      "Moving dem files"
+      "Should it be mocha or chai"
     );
-    await fsLib.moveDir(
+    await fsLib.updateFile(
       `${__dirname}/test-box/text.txt`,
-      `${__dirname}/box-test/test-box/text.txt`
+      "It should be mocha I guess"
     );
-    const newPathExists = await fs.pathExists(
-      `${__dirname}/box-test/test-box/text.txt`
-    );
-    const oldPathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
-    newPathExists.should.equal(true) && oldPathExists.should.equal(false);
+    const result = await fsLib.readFile(`${__dirname}/test-box/text.txt`);
+    result.contents.should.equal("It should be mocha I guess");
   });
 
   it("deleteFile", async () => {
@@ -80,4 +113,17 @@ describe("lib-fs", function() {
     const pathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
     pathExists.should.equal(false);
   });
+});
+
+it("moveDir", async () => {
+  await fsLib.createFile(`${__dirname}/test-box/text.txt`, "Moving dem files");
+  await fsLib.moveDir(
+    `${__dirname}/test-box/text.txt`,
+    `${__dirname}/box-test/test-box/text.txt`
+  );
+  const newPathExists = await fs.pathExists(
+    `${__dirname}/box-test/test-box/text.txt`
+  );
+  const oldPathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
+  newPathExists.should.equal(true) && oldPathExists.should.equal(false);
 });
