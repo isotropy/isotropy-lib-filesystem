@@ -1,7 +1,7 @@
 {
   "name": "isotropy-lib-fs",
-  "version": "1.0.0",
-  "description": "Filesystem Library for the Isotropy Project",
+  "version": "0.1.0",
+  "description": "Filesystem Backend for the Isotropy Project",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -13,7 +13,10 @@
     "type": "git",
     "url": "https://github.com/isotropy/isotropy-lib-fs.git"
   },
-  "author": "",
+  "contributors": [
+    "Jeswin Kumar<jeswinpk@agilehead.com>",
+    "Arivanandan U<uarivanandan@gmail.com>"
+  ],
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/isotropy/isotropy-lib-fs/issues"
