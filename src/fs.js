@@ -40,8 +40,8 @@ async function getFilesInPathRecursively(dirPath, folders = [], files = []) {
 
 export async function createFile(path, contents = "") {
   return await fs
-  .pathExists(path)
-  .then(exists => (exists ? null : fs.outputFile(path, contents)));
+    .pathExists(path)
+    .then(exists => (exists ? null : fs.outputFile(path, contents)));
 }
 
 export async function getFiles(dirPath, recurse = false) {

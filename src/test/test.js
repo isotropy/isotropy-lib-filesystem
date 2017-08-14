@@ -113,17 +113,20 @@ describe("lib-fs", function() {
     const pathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
     pathExists.should.equal(false);
   });
-});
 
-it("moveDir", async () => {
-  await fsLib.createFile(`${__dirname}/test-box/text.txt`, "Moving dem files");
-  await fsLib.moveDir(
-    `${__dirname}/test-box/text.txt`,
-    `${__dirname}/box-test/test-box/text.txt`
-  );
-  const newPathExists = await fs.pathExists(
-    `${__dirname}/box-test/test-box/text.txt`
-  );
-  const oldPathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
-  newPathExists.should.equal(true) && oldPathExists.should.equal(false);
+  it("moveDir", async () => {
+    await fsLib.createFile(
+      `${__dirname}/test-box/text.txt`,
+      "Moving dem files"
+    );
+    await fsLib.moveDir(
+      `${__dirname}/test-box/text.txt`,
+      `${__dirname}/box-test/test-box/text.txt`
+    );
+    const newPathExists = await fs.pathExists(
+      `${__dirname}/box-test/test-box/text.txt`
+    );
+    const oldPathExists = await fs.pathExists(`${__dirname}/test-box/text.txt`);
+    newPathExists.should.equal(true) && oldPathExists.should.equal(false);
+  });
 });
