@@ -6,12 +6,10 @@
     "Jeswin Kumar<jeswinpk@agilehead.com>",
     "Arivanandan U<uarivanandan@gmail.com>"
   ],
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
+  "main": "dist/fs.js",
   "scripts": {
-    "test": "mocha dist/test/test.js"
+    "test": "mocha dist/test/test.js",
+    "debug": "mocha dist/test/test.js --debug-brk"
   },
   "repository": {
     "type": "git",
