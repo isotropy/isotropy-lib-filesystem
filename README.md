@@ -1,9 +1,9 @@
-# isotropy-lib-fs
+# isotropy-lib-filesystem
 Filesystem Library for the Isotropy Project
 
 
 ```javascript
-import * from "isotropy-lib-fs"
+import * from "isotropy-lib-filesystem"
 ```
 
 

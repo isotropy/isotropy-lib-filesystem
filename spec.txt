@@ -1,4 +1,4 @@
-# isotropy-lib-fs
+# isotropy-lib-filesystem
 Filesystem Library for the Isotropy Project
 
 1. getFiles(dir, recurse = false)  
