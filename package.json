@@ -1,6 +1,6 @@
 {
   "name": "isotropy-lib-filesystem",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Filesystem Backend for the Isotropy Project",
   "contributors": [
     "Arivanandan U<uarivanandan@gmail.com>",
