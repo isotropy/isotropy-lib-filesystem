@@ -38,39 +38,39 @@ async function getFilesInPathRecursively(dirPath, folders = [], files = []) {
   return getFilesInPathRecursively(folders.pop(), folders, files);
 }
 
-export async function createFile(dir, filename, contents = "") {
-  const filePath = path.join(dir, filename);
+export async function createFile(basePath, { dir, filename, contents = "" }) {
+  const filePath = path.join(basePath, dir, filename);
   return await fs
     .pathExists(filePath)
     .then(exists => (exists ? null : fs.outputFile(filePath, contents)));
 }
 
-export async function getFiles(dirPath, recurse = false) {
-  if (recurse === false) return await getFilesInPath(dirPath);
-  return await getFilesInPathRecursively(dirPath);
+export async function getFiles(basePath, dirPath, recurse = false) {
+  if (recurse === false) return await getFilesInPath(path.join(basePath, dirPath));
+  return await getFilesInPathRecursively(path.join(basePath, dirPath));
 }
 
-export async function readFile(dir, filename) {
+export async function readFile(basePath, dir, filename) {
   return await fs
-    .readFile(path.join(dir, filename), "utf8")
+    .readFile(path.join(basePath, dir, filename), "utf8")
     .then(contents => ({ contents }));
 }
 
-export async function moveFile(dir, filename, newDir, newFilename) {
+export async function moveFile(basePath, dir, filename, newDir, newFilename) {
   return await fs.move(
-    path.join(dir, filename),
-    path.join(newDir, newFilename)
+    path.join(basePath, dir, filename),
+    path.join(basePath, newDir, newFilename)
   );
 }
 
-export async function updateFile(dir, filename, contents) {
-  return await fs.outputFile(path.join(dir, filename), contents);
+export async function updateFile(basePath, dir, filename, contents) {
+  return await fs.outputFile(path.join(basePath, dir, filename), contents);
 }
 
-export async function deleteFile(dir, filename) {
-  return await fs.unlink(path.join(dir, filename));
+export async function deleteFile(basePath, dir, filename) {
+  return await fs.unlink(path.join(basePath, dir, filename));
 }
 
-export async function moveDir(dir, filename, newDir, newFilename) {
-  return await moveFile(dir, filename, newDir, newFilename);
+export async function moveDir(basePath, dir, filename, newDir, newFilename) {
+  return await moveFile(basePath, dir, filename, newDir, newFilename);
 }
